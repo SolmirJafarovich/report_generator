@@ -1,0 +1,31 @@
+from src.report_generator.pptx_exporter import ReportGenerator
+
+report_data = {
+    "template_path": "templates/example_template.pptx",
+    "slides": [
+        {
+            "type": "image",
+            "title": "Пример изображения",
+            "images": [
+                {"path": "data/image1.jpg", "caption": "Картинка 1"},
+                {"path": "data/image1.jpg", "caption": "Картинка 1"},
+                {"path": "data/image1.jpg", "caption": "Картинка 1"},
+            ],
+        },
+        {
+            "type": "table",
+            "title": "Таблица с результатами",
+            "tables": [{"path": "data/table1.xlsx"}],
+        },
+        {
+            "type": "text",
+            "title": "Выводы",
+            "subtitle": "Резюме и рекомендации",
+            "notes": "Система работает как ожидалось...",
+        },
+    ],
+}
+
+report = ReportGenerator(report_data)
+report.build()
+report.save("generated_report.pptx")

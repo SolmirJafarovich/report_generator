@@ -6,7 +6,7 @@ from .utils.units import mm
 
 
 def add_mixed_slide(self, data):
-    layout = self.prs.slide_layouts[6]  # Blank slide
+    layout = self.prs.slide_layouts[6]
     slide = self.prs.slides.add_slide(layout)
 
     # === Заголовок ===

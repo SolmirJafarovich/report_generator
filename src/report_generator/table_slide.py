@@ -10,7 +10,7 @@ from .utils.text_style import apply_text_style
 
 
 def add_table_slide(self, data):
-    layout = self.prs.slide_layouts[1]  # Title and Content
+    layout = self.prs.slide_layouts[1]
 
     for table_data in data.get("tables", []):
         path = table_data.get("path")
@@ -67,7 +67,6 @@ def add_table_slide(self, data):
                     for paragraph in cell.text_frame.paragraphs:
                         apply_text_style(paragraph, self.text_config.table_cell)
 
-            # 🔧 Автоширина
             col_max_char = [0] * cols
             for row in df_chunk.values:
                 for col_idx, val in enumerate(row):

@@ -2,7 +2,7 @@ from .utils.text_style import apply_text_style
 
 
 def add_text_slide(self, data):
-    layout = self.prs.slide_layouts[1]  # Title and Content
+    layout = self.prs.slide_layouts[1]
     slide = self.prs.slides.add_slide(layout)
 
     # === Заголовок ===

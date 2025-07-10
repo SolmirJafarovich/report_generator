@@ -26,7 +26,9 @@ def main():
         description="Генерация отчёта PowerPoint из JSON данных."
     )
     parser.add_argument("--data", required=True, help="Путь к report_data.json")
-    parser.add_argument("--style", required=True, help="Путь к style_config.json")
+    parser.add_argument(
+        "--style", default="style_config.json", help="Путь к style_config.json"
+    )
     parser.add_argument(
         "--output", default="generated_report.pptx", help="Путь к выходному .pptx файлу"
     )

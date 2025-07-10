@@ -1,15 +1,12 @@
 import math
 import os
 
-from pptx.dml.color import RGBColor
-from pptx.enum.text import PP_ALIGN
-from pptx.util import Pt
-
 from .utils.table_config import (
     HEADER_ROWS,
     get_max_rows_per_slide,
 )
 from .utils.table_loader import load_table
+from .utils.text_style import apply_text_style
 
 
 def add_table_slide(self, data):
@@ -38,19 +35,7 @@ def add_table_slide(self, data):
             # Заголовок слайда
             title_shape.text = title_text
             for paragraph in title_shape.text_frame.paragraphs:
-                paragraph.alignment = {
-                    "center": PP_ALIGN.CENTER,
-                    "left": PP_ALIGN.LEFT,
-                    "right": PP_ALIGN.RIGHT,
-                }.get(self.text_config.title.text_align, PP_ALIGN.LEFT)
-                for run in paragraph.runs:
-                    run.font.name = self.text_config.title.font_name
-                    run.font.size = Pt(self.text_config.title.font_size)
-                    run.font.bold = self.text_config.title.bold
-                    run.font.italic = self.text_config.title.italic
-                    run.font.color.rgb = RGBColor.from_string(
-                        self.text_config.title.color
-                    )
+                apply_text_style(paragraph, self.text_config.title)
 
             # Подтаблица
             start = part_idx * max_rows_per_slide
@@ -72,20 +57,7 @@ def add_table_slide(self, data):
                 cell = table_shape.cell(0, col_idx)
                 cell.text = str(col_name)
                 for paragraph in cell.text_frame.paragraphs:
-                    paragraph.alignment = {
-                        "center": PP_ALIGN.CENTER,
-                        "left": PP_ALIGN.LEFT,
-                        "right": PP_ALIGN.RIGHT,
-                    }.get(self.text_config.table_header.text_align, PP_ALIGN.LEFT)
-                    for run in paragraph.runs:
-                        style = getattr(
-                            self.text_config, "table_header", self.text_config.title
-                        )
-                        run.font.name = style.font_name
-                        run.font.size = Pt(style.font_size)
-                        run.font.bold = style.bold
-                        run.font.italic = style.italic
-                        run.font.color.rgb = RGBColor.from_string(style.color)
+                    apply_text_style(paragraph, self.text_config.table_header)
 
             # Ячейки
             for row_idx, row in enumerate(df_chunk.values):
@@ -93,21 +65,9 @@ def add_table_slide(self, data):
                     cell = table_shape.cell(row_idx + HEADER_ROWS, col_idx)
                     cell.text = str(val)
                     for paragraph in cell.text_frame.paragraphs:
-                        paragraph.alignment = {
-                            "center": PP_ALIGN.CENTER,
-                            "left": PP_ALIGN.LEFT,
-                            "right": PP_ALIGN.RIGHT,
-                        }.get(self.text_config.table_cell.text_align, PP_ALIGN.LEFT)
-                        for run in paragraph.runs:
-                            style = getattr(
-                                self.text_config, "table_cell", self.text_config.body
-                            )
-                            run.font.name = style.font_name
-                            run.font.size = Pt(style.font_size)
-                            run.font.bold = style.bold
-                            run.font.italic = style.italic
-                            run.font.color.rgb = RGBColor.from_string(style.color)
+                        apply_text_style(paragraph, self.text_config.table_cell)
 
+            # 🔧 Автоширина
             col_max_char = [0] * cols
             for row in df_chunk.values:
                 for col_idx, val in enumerate(row):

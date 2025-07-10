@@ -1,7 +1,6 @@
 from pptx import Presentation
 
 from .image_slide import add_image_slide
-from .mixed_slide import add_mixed_slide
 from .table_slide import add_table_slide
 from .text_slide import add_text_slide
 from .title_slide import add_title_slide
@@ -22,7 +21,5 @@ class SlideBuilder:
             add_image_slide(self, slide_data)
         elif slide_type == "table":
             add_table_slide(self, slide_data)
-        elif slide_type == "mixed":
-            add_mixed_slide(self, slide_data)
         else:
             add_text_slide(self, slide_data)

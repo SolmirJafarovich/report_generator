@@ -1,0 +1,42 @@
+{
+  "title": {
+    "font_name": "Calibri",
+    "font_size": 32,
+    "bold": true,
+    "italic": false,
+    "color": "003366",
+    "text_align": "center"
+  },
+  "body": {
+    "font_name": "Calibri",
+    "font_size": 18,
+    "bold": false,
+    "italic": false,
+    "color": "333333",
+    "text_align": "left"
+  },
+  "table_header": {
+    "font_name": "Calibri",
+    "font_size": 24,
+    "bold": true,
+    "italic": false,
+    "color": "000000",
+    "text_align": "center"
+  },
+  "table_cell": {
+    "font_name": "Calibri",
+    "font_size": 20,
+    "bold": false,
+    "italic": false,
+    "color": "000000",
+    "text_align": "left"
+  },
+  "notes": {
+    "font_name": "Calibri",
+    "font_size": 10,
+    "bold": false,
+    "italic": true,
+    "color": "777777",
+    "text_align": "left"
+  }
+}

@@ -8,6 +8,7 @@ from .utils.table_config import (
     HEADER_ROWS,
     emu_to_pt,
     estimate_row_height,
+    get_max_rows_per_slide,
 )
 from .utils.table_loader import load_table
 from .utils.text_style import apply_text_style
@@ -45,10 +46,11 @@ def add_table_slide(self, data):
         line_height_pt = cell_style.font_size
 
         # Определяем макс. число строк, которые влезают
-        max_rows_per_slide = 1  # минимум
+        max_rows_per_slide, chars_per_line = get_max_rows_per_slide(df, position, self.text_config)
         total = line_height_pt  # заголовок
         for row in df.values:
-            row_height = estimate_row_height(row, line_height_pt)
+            row_height = estimate_row_height(row, line_height_pt, chars_per_line)
+
             if total + row_height > placeholder_height_pt:
                 break
             total += row_height

@@ -13,10 +13,10 @@ class TextStyle:
         text_align="left",
     ):
         self.font_name = font_name
-        self.font_size = font_size  # в поинтах
+        self.font_size = font_size
         self.bold = bold
         self.italic = italic
-        self.color = color  # HEX без #
+        self.color = color
         self.text_align = text_align
 
 
@@ -79,7 +79,7 @@ class TextConfig:
             if table_cell
             else TextStyle(
                 font_name="Calibri",
-                font_size=12,
+                font_size=20,
                 bold=False,
                 italic=False,
                 color="000000",

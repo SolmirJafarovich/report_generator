@@ -1,18 +1,9 @@
-from .units import mm
+# src/report_generator/utils/table_config.py
 
-# Размеры placeholder'а "Content" в layout "Title and Content"
-PLACEHOLDER_LEFT = mm(25)
-PLACEHOLDER_TOP = mm(55)
-PLACEHOLDER_WIDTH = mm(260)
-PLACEHOLDER_HEIGHT = mm(135)
-
-# Настройки строки таблицы
-ROW_HEIGHT_PT = 18
+# Высота заголовков таблицы (заранее 1 строка)
 HEADER_ROWS = 1
-CHARS_PER_LINE = 30  # Средняя ширина строки
-LINE_HEIGHT_PT = 18  # Высота одной строки текста
+CHARS_PER_LINE = 30  # Средняя длина строки
 
-# Преобразование EMU в pt (используется в расчётах)
 EMU_PER_INCH = 914400
 PT_PER_INCH = 72
 
@@ -26,21 +17,30 @@ def estimate_cell_lines(text: str, chars_per_line=CHARS_PER_LINE):
     return max(1, text.count("\n") + len(text) // chars_per_line + 1)
 
 
-def estimate_row_height(row, line_height_pt=LINE_HEIGHT_PT):
+def estimate_row_height(row, line_height_pt: float):
+    """
+    Оценивает высоту строки на основе максимального количества строк текста в ячейке.
+    """
     max_lines = max(estimate_cell_lines(cell) for cell in row)
     return max_lines * line_height_pt
 
 
-def get_max_rows_per_slide(df):
+def get_max_rows_per_slide(df, placeholder_height, text_config):
     """
-    Оценка максимального количества строк таблицы, которые могут поместиться на слайде,
-    с учётом многострочного текста.
+    Определяет, сколько строк таблицы влезает в указанный placeholder,
+    учитывая фактический размер шрифта в текстовой конфигурации.
     """
-    available_height_pt = emu_to_pt(PLACEHOLDER_HEIGHT)
-    total = ROW_HEIGHT_PT  # заголовок
+    available_height_pt = emu_to_pt(placeholder_height)
+
+    # Получаем высоту строки из text_config
+    style = getattr(text_config, "table_cell", text_config.body)
+    line_height_pt = style.font_size
+
+    total = line_height_pt  # заголовок
     count = 0
+
     for row in df.values:
-        row_height = estimate_row_height(row)
+        row_height = estimate_row_height(row, line_height_pt)
         if total + row_height > available_height_pt:
             break
         total += row_height

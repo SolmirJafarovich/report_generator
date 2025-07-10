@@ -1,9 +1,13 @@
 import math
 import os
 
+from pptx.util import Pt
+
+from .utils.placeholder_utils import get_content_placeholder_position
 from .utils.table_config import (
     HEADER_ROWS,
-    get_max_rows_per_slide,
+    emu_to_pt,
+    estimate_row_height,
 )
 from .utils.table_loader import load_table
 from .utils.text_style import apply_text_style
@@ -20,9 +24,36 @@ def add_table_slide(self, data):
             continue
 
         df = load_table(path, sheet)
-        max_rows_per_slide = get_max_rows_per_slide(df)
-
         rows, cols = df.shape
+
+        # Получаем размеры плейсхолдера
+        position = get_content_placeholder_position(self.prs)
+        if position is None:
+            print("[!] Не удалось получить размеры плейсхолдера")
+            continue
+
+        placeholder_left, placeholder_top, placeholder_width, placeholder_height = (
+            position["left"],
+            position["top"],
+            position["width"],
+            position["height"],
+        )
+        placeholder_height_pt = emu_to_pt(placeholder_height)
+
+        # Получаем стиль ячеек таблицы
+        cell_style = getattr(self.text_config, "table_cell", self.text_config.body)
+        line_height_pt = cell_style.font_size
+
+        # Определяем макс. число строк, которые влезают
+        max_rows_per_slide = 1  # минимум
+        total = line_height_pt  # заголовок
+        for row in df.values:
+            row_height = estimate_row_height(row, line_height_pt)
+            if total + row_height > placeholder_height_pt:
+                break
+            total += row_height
+            max_rows_per_slide += 1
+
         total_parts = math.ceil(rows / max_rows_per_slide)
 
         for part_idx in range(total_parts):
@@ -32,7 +63,6 @@ def add_table_slide(self, data):
             if total_parts > 1:
                 title_text += f" (Часть {part_idx + 1}/{total_parts})"
 
-            # Заголовок слайда
             title_shape.text = title_text
             for paragraph in title_shape.text_frame.paragraphs:
                 apply_text_style(paragraph, self.text_config.title)
@@ -42,14 +72,19 @@ def add_table_slide(self, data):
             end = min(start + max_rows_per_slide, rows)
             df_chunk = df.iloc[start:end]
 
-            placeholder = slide.placeholders[1]
+            # Высота таблицы в pt → emu
+            table_height_pt = line_height_pt * (len(df_chunk) + HEADER_ROWS)
+            table_height_emu = Pt(table_height_pt).emu
+            actual_height = min(table_height_emu, placeholder_height)
+
+            # Добавление таблицы
             table_shape = slide.shapes.add_table(
                 len(df_chunk) + HEADER_ROWS,
                 cols,
-                placeholder.left,
-                placeholder.top,
-                placeholder.width,
-                placeholder.height,
+                placeholder_left,
+                placeholder_top,
+                placeholder_width,
+                actual_height,
             ).table
 
             # Заголовки
@@ -67,6 +102,7 @@ def add_table_slide(self, data):
                     for paragraph in cell.text_frame.paragraphs:
                         apply_text_style(paragraph, self.text_config.table_cell)
 
+            # Автоширина столбцов
             col_max_char = [0] * cols
             for row in df_chunk.values:
                 for col_idx, val in enumerate(row):
@@ -81,4 +117,4 @@ def add_table_slide(self, data):
             for col_idx in range(cols):
                 ratio = col_weights[col_idx] / total_weight
                 ratio = max(ratio, MIN_COL_WIDTH_PCT)
-                table_shape.columns[col_idx].width = int(placeholder.width * ratio)
+                table_shape.columns[col_idx].width = int(placeholder_width * ratio)
